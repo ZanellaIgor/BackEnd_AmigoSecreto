@@ -3,13 +3,17 @@ import express from 'express';
 import cors from 'cors';
 import http from 'http';
 import https from 'https';
+import siteRoutes from './routes/site';
+import { requestIntercepter } from './utils/requestInterceptor';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.all('*', requestIntercepter);
 
+app.use('/', siteRoutes);
 const runServer = (port: number, server: http.Server) => {
   server.listen(port, () => {
     console.log(`Running ar PORT ${port}`);
