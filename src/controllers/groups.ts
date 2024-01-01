@@ -47,4 +47,20 @@ export const updateGroup: RequestHandler = async (req, res) => {
   });
   const body = updateGroupSchema.safeParse(req.body);
   if (!body.success) return res.json({ error: 'Dados inválidos' });
+  const updatedGroup = await groups.update(
+    { id: parseInt(id), id_event: parseInt(id_event) },
+    body.data
+  );
+  if (updatedGroup) return res.json({ group: updatedGroup });
+  res.json({ error: 'Ocorreu um erro' });
+};
+
+export const deleteGroup: RequestHandler = async (req, res) => {
+  const { id, id_event } = req.params;
+  const deltedGroup = await groups.remove({
+    id: parseInt(id),
+    id_event: parseInt(id_event),
+  });
+  if (deltedGroup) return res.json({ groups: deltedGroup });
+  res.json({ error: 'Ocorreu um erro' });
 };
