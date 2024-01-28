@@ -52,4 +52,30 @@ export const updatePerson: RequestHandler = async (req, res) => {
   });
   const body = updatePersonSchema.safeParse(req.body);
   if (!body.success) return res.json({ error: 'Dados inválidos' });
+  const updatedPerson = await people.update(
+    {
+      id: parseInt(id),
+      id_event: parseInt(id_event),
+      id_group: parseInt(id_group),
+    },
+    body.data
+  );
+  if (updatedPerson) {
+    const personItem = await people.getOne({
+      id: parseInt(id),
+      id_event: parseInt(id_event),
+    });
+    return res.json({ person: personItem });
+  }
+  res.json({ error: 'Ocorreu um erro' });
+};
+
+export const deletePerson: RequestHandler = async (req, res) => {
+  const { id, id_event, id_group } = req.params;
+  const deletedPerson = await people.remove({
+    id: parseInt(id),
+    id_event: parseInt(id_event),
+    id_group: parseInt(id_group),
+  });
+  if (deletedPerson) return res.json({ person: deletedPerson });
 };
