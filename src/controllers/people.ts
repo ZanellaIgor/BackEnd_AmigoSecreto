@@ -1,6 +1,8 @@
 import { RequestHandler } from 'express-serve-static-core';
 import * as people from '../services/people';
 import { z } from 'zod';
+import { decryptMatch } from '../../src/utils/match';
+
 export const getAll: RequestHandler = async (req, res) => {
   const { id_event, id_group } = req.params;
   const items = await people.getAll({
@@ -26,7 +28,7 @@ export const addPerson: RequestHandler = async (req, res) => {
   const { id_event, id_group } = req.params;
   const addPersonSchema = z.object({
     name: z.string(),
-    cpf: z.string().transform((val) => val.replace(/\.|-/gm, '')),
+    cpf: z.string().transform(val => val.replace(/\.|-/gm, '')),
   });
   const body = addPersonSchema.safeParse(req.body);
   if (!body.success) return res.json({ error: 'Dados inválidos' });
@@ -46,7 +48,7 @@ export const updatePerson: RequestHandler = async (req, res) => {
     name: z.string().optional(),
     cpf: z
       .string()
-      .transform((val) => val.replace(/\.|-/gm, ''))
+      .transform(val => val.replace(/\.|-/gm, ''))
       .optional(),
     matched: z.string().optional(),
   });
@@ -78,4 +80,45 @@ export const deletePerson: RequestHandler = async (req, res) => {
     id_group: parseInt(id_group),
   });
   if (deletedPerson) return res.json({ person: deletedPerson });
+};
+
+export const searchPerson: RequestHandler = async (req, res) => {
+  const { id_event } = req.params;
+  const searchPersonShema = z.object({
+    cpf: z.string().transform(val => val.replace(/\.|-/gm, '')),
+  });
+
+  const query = searchPersonShema.safeParse(req.query);
+
+  if (!query.success) return res.json({ error: 'Dados inválidos' });
+
+  const personItem = await people.getOne({
+    id_event: parseInt(id_event),
+    cpf: query.data.cpf,
+  });
+
+  console.log(personItem);
+  if (personItem && personItem.matched) {
+    const matchId = decryptMatch(personItem.matched);
+
+    const personMatched = await people.getOne({
+      id_event: parseInt(id_event),
+      id: matchId,
+    });
+    console.log(personMatched);
+    if (personMatched) {
+      return res.json({
+        person: {
+          id: personItem.id,
+          name: personItem.name,
+        },
+        personMatched: {
+          id: personMatched.id,
+          name: personMatched.name,
+        },
+      });
+    }
+  }
+
+  res.json({ error: 'Ocorreu um erro' });
 };
