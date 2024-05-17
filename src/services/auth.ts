@@ -2,7 +2,6 @@ import { getToday } from '../utils/getToday';
 
 export const validatePassword = (password: string): boolean => {
   const currentPassword = getToday().split('/').join('');
-  console.log(currentPassword, 'aqui');
   return password === currentPassword;
 };
 export const createToken = () => {

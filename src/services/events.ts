@@ -11,6 +11,22 @@ export const getAll = async () => {
     return false;
   }
 };
+
+export const getAllEventsByPerson = async (cpf: string) => {
+  try {
+    const eventos = await prisma.event.findMany({
+      where: {
+        AND: [{ EventPeople: { some: { cpf: cpf } } }],
+      },
+    });
+
+    if (!eventos) return [];
+    return eventos;
+  } catch (err) {
+    console.error('Erro ao buscar eventos por pessoa:', err);
+    return false;
+  }
+};
 export const getOne = async (id: number) => {
   try {
     return await prisma.event.findFirst({ where: { id } });
@@ -63,14 +79,14 @@ export const doMatches = async (id: number): Promise<boolean> => {
         keepTryng = false;
         attemtps++;
         sortedList = [];
-        sortable = peopleList.map(item => item.id);
+        sortable = peopleList.map((item) => item.id);
 
         for (let i in peopleList) {
           let sortableFiltered: number[] = sortable;
           if (eventItem.grouped) {
-            sortableFiltered = sortableFiltered.filter(sortableItem => {
+            sortableFiltered = sortableFiltered.filter((sortableItem) => {
               let sortablePerson = peopleList.find(
-                item => item.id === sortableItem
+                (item) => item.id === sortableItem
               );
               return peopleList[i].id_group !== sortablePerson?.id_group;
             });
@@ -93,7 +109,7 @@ export const doMatches = async (id: number): Promise<boolean> => {
               match: sortableFiltered[sortedIndex],
             });
             sortable = sortable.filter(
-              item => item !== sortableFiltered[sortedIndex]
+              (item) => item !== sortableFiltered[sortedIndex]
             );
           }
         }
