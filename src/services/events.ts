@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-import * as people from './people';
-import * as groups from './groups';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { encryptMatch } from '../../src/utils/match';
+import * as people from './people';
 
 const prisma = new PrismaClient();
 export const getAll = async () => {
@@ -12,21 +11,6 @@ export const getAll = async () => {
   }
 };
 
-export const getAllEventsByPerson = async (cpf: string) => {
-  try {
-    const eventos = await prisma.event.findMany({
-      where: {
-        AND: [{ EventPeople: { some: { cpf: cpf } } }],
-      },
-    });
-
-    if (!eventos) return [];
-    return eventos;
-  } catch (err) {
-    console.error('Erro ao buscar eventos por pessoa:', err);
-    return false;
-  }
-};
 export const getOne = async (id: number) => {
   try {
     return await prisma.event.findFirst({ where: { id } });

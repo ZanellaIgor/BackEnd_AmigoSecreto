@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
+import { z } from 'zod';
 import * as events from '../services/events';
 import * as people from '../services/people';
-import { z } from 'zod';
 export const getAll: RequestHandler = async (req, res) => {
   const items = await events.getAll();
 
@@ -9,13 +9,6 @@ export const getAll: RequestHandler = async (req, res) => {
   res.json({ error: 'Ocorreu um erro' });
 };
 
-export const getAllEventsByPerson: RequestHandler = async (req, res) => {
-  const { cpf } = req.params;
-  const items = await events.getAllEventsByPerson(cpf);
-  console.log(items);
-  if (items) return res.json({ events: items });
-  res.json({ error: 'Ocorreu um erro' });
-};
 export const getEvent: RequestHandler = async (req, res) => {
   const { id } = req.params;
   const eventItem = await events.getOne(parseInt(id));

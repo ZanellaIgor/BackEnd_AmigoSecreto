@@ -6,8 +6,6 @@ const router = Router();
 
 router.get('/ping', (req, res) => res.json({ pong: true }));
 
-router.get('/login/search', events.getAllEventsByPerson);
-
 router.post('/events/search');
 
 router.get('/events/:id', events.getEvent);
