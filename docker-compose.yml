@@ -7,21 +7,9 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
     ports:
-      - '5432:5432'
+      - '5445:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
-
-  prisma:
-    build: ./prisma
-    depends_on:
-      - db
-    environment:
-      DATABASE_URL: postgresql://postgres:1234@db:5432/BD_Amigo_Secreto?schema=public
-    ports:
-      - '4466:4466'
-    volumes:
-      - ./private:/private
-      - ./certificate:/certificate
 
 volumes:
   db_data:

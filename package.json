@@ -4,8 +4,9 @@
     "dev": "nodemon server.ts",
     "build": "tsc",
     "start": "node build/server.js",
-    "migrate:dev":"prisma migrate dev",
-    "migrate:deploy":"prisma migrate deploy"
+    "migrate:seed": "prisma migrate dev --seed prisma/seeds/seed.ts",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy"
   },
   "author": "Seu Nome",
   "license": "MIT",
