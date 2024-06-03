@@ -57,7 +57,7 @@ export const doMatches = async (id: number): Promise<boolean> => {
       let sortedList: { id: number; match: number }[] = [];
       let sortable: number[] = [];
       let attemtps = 0;
-      let maxAttempts = peopleList.length;
+      let maxAttempts = peopleList.length * 5;
       let keepTryng = true;
       while (keepTryng && attemtps < maxAttempts) {
         keepTryng = false;
@@ -98,10 +98,7 @@ export const doMatches = async (id: number): Promise<boolean> => {
           }
         }
       }
-      console.log(`attemps: ${attemtps}`);
-      console.log(`maxAttempts: ${maxAttempts}`);
-      console.log(`sortedList: ${sortedList}`);
-      console.log(JSON.stringify(sortedList));
+
       if (attemtps < maxAttempts) {
         for (let i in sortedList) {
           await people.update(

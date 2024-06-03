@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import * as groups from './groups';
 const prisma = new PrismaClient();
 
@@ -37,7 +37,8 @@ export const add = async (data: PeopleCreateData) => {
       id_event: data.id_event,
     });
     if (!group) return false;
-    return await prisma.eventPeople.create({ data });
+    const result = await prisma.eventPeople.create({ data });
+    return result;
   } catch (err) {
     return false;
   }
