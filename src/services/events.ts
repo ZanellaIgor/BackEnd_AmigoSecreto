@@ -51,67 +51,62 @@ export const doMatches = async (id: number): Promise<boolean> => {
     where: { id },
     select: { grouped: true },
   });
-  if (eventItem) {
-    const peopleList = await people.getAll({ id_event: id });
-    if (peopleList) {
-      let sortedList: { id: number; match: number }[] = [];
-      let sortable: number[] = [];
-      let attemtps = 0;
-      let maxAttempts = peopleList.length * 5;
-      let keepTryng = true;
-      while (keepTryng && attemtps < maxAttempts) {
-        keepTryng = false;
-        attemtps++;
-        sortedList = [];
-        sortable = peopleList.map((item) => item.id);
 
-        for (let i in peopleList) {
-          let sortableFiltered: number[] = sortable;
-          if (eventItem.grouped) {
-            sortableFiltered = sortableFiltered.filter((sortableItem) => {
-              let sortablePerson = peopleList.find(
-                (item) => item.id === sortableItem
-              );
-              return peopleList[i].id_group !== sortablePerson?.id_group;
-            });
-          }
-          if (
-            sortableFiltered.length === 0 ||
-            (sortableFiltered.length === 1 &&
-              peopleList[i].id === sortableFiltered[0])
-          ) {
-            keepTryng = true;
-          } else {
-            let sortedIndex = Math.floor(
-              Math.random() * sortableFiltered.length
-            );
-            while (sortableFiltered[sortedIndex] === peopleList[i].id) {
-              sortedIndex = Math.floor(Math.random() * sortableFiltered.length);
-            }
-            sortedList.push({
-              id: peopleList[id].id,
-              match: sortableFiltered[sortedIndex],
-            });
-            sortable = sortable.filter(
-              (item) => item !== sortableFiltered[sortedIndex]
-            );
-          }
-        }
-      }
+  if (!eventItem) return false;
 
-      if (attemtps < maxAttempts) {
-        for (let i in sortedList) {
-          await people.update(
-            {
-              id: sortedList[i].id,
-              id_event: id,
-            },
-            { matched: encryptMatch(sortedList[i].match) }
-          );
-          return true;
+  const peopleList = await people.getAll({ id_event: id });
+  if (!peopleList) return false;
+
+  let sortedList: { id: number; match: number }[] = [];
+  let attempts = 0;
+  const maxAttempts = peopleList.length * 5;
+  let success = false;
+
+  while (!success && attempts < maxAttempts) {
+    attempts++;
+    sortedList = [];
+    let sortable = peopleList.map((item) => item.id);
+    success = true;
+
+    for (let person of peopleList) {
+      let sortableFiltered = sortable.filter((id) => {
+        if (eventItem.grouped) {
+          const sortablePerson = peopleList.find((item) => item.id === id);
+          return person.id_group !== sortablePerson?.id_group;
         }
+        return true;
+      });
+      if (
+        sortableFiltered.length === 0 ||
+        (sortableFiltered.length === 1 && person.id === sortableFiltered[0])
+      ) {
+        success = false;
+        break;
+      } else {
+        const sortedIndex = Math.floor(Math.random() * sortableFiltered.length);
+        const match = sortableFiltered[sortedIndex];
+
+        sortedList.push({
+          id: person.id,
+          match: match,
+        });
+
+        sortable = sortable.filter((item) => item !== match);
       }
     }
+  }
+
+  if (success) {
+    for (const item of sortedList) {
+      await people.update(
+        {
+          id: item.id,
+          id_event: id,
+        },
+        { matched: encryptMatch(item.match) }
+      );
+    }
+    return true;
   }
   return false;
 };
